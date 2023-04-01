@@ -26,6 +26,10 @@ struct CameraView : View {
     @State private var objectToggle = false
     @State private var personToggle = false
     @State private var textpopup = false
+    @State var recognisedtext = "test"
+    
+    
+    
     var body: some View {
         
         ZStack {
@@ -33,6 +37,7 @@ struct CameraView : View {
                 .ignoresSafeArea(.all, edges: .all)
             
             if textpopup{
+                
                 Color.black
                     .opacity(0.4)
                     .edgesIgnoringSafeArea(.all)
@@ -53,7 +58,7 @@ struct CameraView : View {
                     Spacer()
                     
                     GeometryReader { geometry in
-                                Text("Test Work!")
+                                Text(recognisedtext)
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
                                     .foregroundColor(.black)
@@ -61,6 +66,8 @@ struct CameraView : View {
                                     .cornerRadius(10)
                                     .padding(.all)
                                     .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
+                        
+                                    
                             }
                     
                     Spacer()
@@ -84,7 +91,7 @@ struct CameraView : View {
                 else if !camera.isTaken, !textpopup{
                     
                     HStack{
-                        Button(action: {textToggle.toggle()}, label: {Image(systemName: "character.cursor.ibeam")
+                        Button(action: {textToggle.toggle(); camera.textwork.toggle()}, label: {Image(systemName: "character.cursor.ibeam")
                                 .foregroundColor(textToggle ? Color.green : Color.yellow)
                                 .padding()
     //                        .background(Color.black)
@@ -165,6 +172,7 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
     @Published var isTaken = false
     @Published var session = AVCaptureSession()
     @Published var alert = false
+    @Published var textwork = false
     
     // for the output
     @Published var output = AVCapturePhotoOutput()
@@ -174,6 +182,8 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
     
     @Published var isSaved = false
     @Published var picData = Data(count: 0)
+    
+    @Published var recognisedtext = ""
     
     func testxyz(){
         print("testing works")
@@ -237,7 +247,7 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
         DispatchQueue.global(qos: .background).async {
             
             self.output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
-            self.session.stopRunning()
+            DispatchQueue.main.async { Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { (timer) in self.session.stopRunning() } }
             
             DispatchQueue.main.async {
                 withAnimation{self.isTaken.toggle()}
@@ -256,35 +266,64 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
         }
     }
     
-    
 
     
-    
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        
+
         if error != nil{
             return
-            
+
         }
-        
+
         print("pic taken")
         
-//        guard let imageData = photo.fileDataRepresentation() else{return}
-//
-//        self.picData = imageData
+        if self.textwork{
+            guard let imageData = photo.fileDataRepresentation() else {return}
+            guard let image = UIImage(data: imageData) else {return}
+            guard let cgimage = image.cgImage else {return}
+            
+            let request = VNRecognizeTextRequest(completionHandler:  {(request, error) in
+                guard let observations = request.results as? [VNRecognizedTextObservation], error == nil else{
+                    print("Text recognition error : \(error?.localizedDescription ?? "")")
+                    return
+                }
+                
+                var recognizetext = ""
+                
+                for observation in observations {
+                    guard let topCandidate = observation.topCandidates(1).first else {continue}
+                    recognizetext += topCandidate.string + " "
+                }
+                
+                print(recognizetext)
+                
+                self.recognisedtext = recognizetext
+                
+                //            DispatchQueue.main.async {
+                //                if let cameraView = self.preview?.superlayer?.superlayer as? CameraView {
+                //                    cameraView.recognisedtext = recognizetext.trimmingCharacters(in: .whitespacesAndNewlines)
+                //                }
+                //            }
+            })
+            
+            request.recognitionLevel = .accurate
+            request.usesLanguageCorrection = true
+            
+            let requests = [request]
+            
+            let imageRequestHandler = VNImageRequestHandler(cgImage: cgimage, orientation: .up, options: [:])
+            
+            do {
+                try imageRequestHandler.perform(requests)
+            } catch let error as NSError {
+                print("failed \(error)")
+            }
+            
+        }
+
+  }
         
-//        guard let imageData = photo.fileDataRepresentation(),
-//                  let image = UIImage(data: imageData) else {
-//                return
-//            }
 //
-//            if let recognizedText = detectText(in: image) {
-//                print("Detected text: \(recognizedText)")
-//            }
-//
-//
-    }
-    
     
 }
 
