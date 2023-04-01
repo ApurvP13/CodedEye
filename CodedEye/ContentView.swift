@@ -53,7 +53,7 @@ struct CameraView : View {
                     Spacer()
                     
                     GeometryReader { geometry in
-                                Text("Hello, world!")
+                                Text("Test Work!")
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
                                     .foregroundColor(.black)
