@@ -56,6 +56,10 @@ struct CameraView : View {
                                 Text("Hello, world!")
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
+                                    .foregroundColor(.black)
+                                    .background(.white)
+                                    .cornerRadius(10)
+                                    .padding(.all)
                                     .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
                             }
                     
