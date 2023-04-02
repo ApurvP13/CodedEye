@@ -58,7 +58,7 @@ struct CameraView : View {
                     Spacer()
                     
                     GeometryReader { geometry in
-                                Text(recognisedtext)
+                        Text(camera.recognisedtext)
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
                                     .foregroundColor(.black)
@@ -129,7 +129,6 @@ struct CameraView : View {
                         
                         Button(action: {
                             if textToggle{
-                                camera.testxyz()
                                 textpopup.toggle()
                             }else{
                                 print("no text toggles also works")
@@ -185,9 +184,9 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
     
     @Published var recognisedtext = ""
     
-    func testxyz(){
-        print("testing works")
-    }
+//    func testxyz(){
+//        print("testing works")
+//    }
     
     
     func Check(){
