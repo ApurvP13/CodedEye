@@ -59,16 +59,15 @@ struct CameraView : View {
                     
                     GeometryReader { geometry in
                         Text(camera.recognisedtext)
-                                    .font(.system(size: 35))
-                                    .fontWeight(.light)
-                                    
+                                    .font(.system(size: 25))
+                                    .fontWeight(.medium)
                                     .foregroundColor(.black)
                                     .background(.white)
                                     .multilineTextAlignment(.center)
-                                    .cornerRadius(10)
-                                    .padding(10)
+                                    .cornerRadius(12)
+                                    .padding(.all, 10)
                                     .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
-                                    .shadow(color: Color.black.opacity(0.5), radius: 5, x: 0, y: 2)
+                                    .shadow(color: Color.black.opacity(0.7), radius: 15, x: 0, y: 2)
                                     
                                     
                             }
