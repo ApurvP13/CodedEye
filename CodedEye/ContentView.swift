@@ -39,7 +39,7 @@ struct CameraView : View {
             if textpopup{
                 
                 Color.black
-                    .opacity(0.4)
+                    .opacity(0.9)
                     .edgesIgnoringSafeArea(.all)
                     .onTapGesture {
                         textpopup.toggle()
@@ -53,27 +53,54 @@ struct CameraView : View {
                 
                 
                 if textpopup{
-                    
-                    
-                    Spacer()
-                    
-                    GeometryReader { geometry in
-                        Text(camera.recognisedtext)
-                                    .font(.system(size: 25))
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.black)
-                                    .background(.white)
+                        
+                            Text("Text Result")
+                            .font(.custom("Grenze", size: 80))
+                                .fontWeight(.regular)
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(Color(red: 0.82, green: 0.77, blue: 0.77,opacity: 1.0))
+                        
+                                Spacer()
+                            
+
+                            
+                            
+                        GeometryReader {proxy in
+                            ScrollView{
+                                Text(camera.recognisedtext)
+                                    .fontWeight(.light)
+                                    .foregroundColor(.white)
+                                
                                     .multilineTextAlignment(.center)
                                     .cornerRadius(12)
-                                    .padding(.all, 10)
-                                    .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
-                                    .shadow(color: Color.black.opacity(0.7), radius: 15, x: 0, y: 2)
-                                    
-                                    
+                                    .padding([.leading, .bottom, .trailing], 50.0)
+//                                    .background(Color.white
+//                                        .blur(radius: 200, opaque: false))
+//                                    .overlay(RoundedRectangle(cornerRadius: 1)
+//                                        .stroke(lineWidth: 0.1))
+                                    .shadow(color: Color.black.opacity(0.5), radius:15, x: 0, y: 10)
+                                    .font(.custom("Hanuman", size: 25))
+                                    .frame(minHeight: proxy.size.height)
+                                
+                                
                             }
-                    
-                    Spacer()
-                }
+                        }
+                            
+                    HStack {
+                        Spacer()
+                        Button(action: {textpopup.toggle(); camera.retakePic()}, label: {Image(systemName: "arrowshape.turn.up.backward.circle.fill")
+                                .foregroundColor(.black)
+//                                .padding()
+                                .background(.white)
+                                .clipShape(Circle())
+                                .font(.system(size: 35))
+                        })
+                        .padding(.trailing,20)
+                    }
+                            
+                            Spacer()
+                        }
+
                else if camera.isTaken, !textpopup{
                     
                     HStack {
@@ -186,6 +213,8 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
     
     @Published var recognisedtext = ""
     
+    @Published var useimage: UIImage?
+    
 //    func testxyz(){
 //        print("testing works")
 //    }
@@ -281,6 +310,7 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
         if self.textwork{
             guard let imageData = photo.fileDataRepresentation() else {return}
             guard let image = UIImage(data: imageData) else {return}
+            self.useimage = image
             guard let cgimage = image.cgImage else {return}
             
             let request = VNRecognizeTextRequest(completionHandler:  {(request, error) in

@@ -11,6 +11,9 @@
 		7624072629B4ED0F009E0B43 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7624072529B4ED0F009E0B43 /* ContentView.swift */; };
 		7624072829B4ED17009E0B43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7624072729B4ED17009E0B43 /* Assets.xcassets */; };
 		7624072B29B4ED17009E0B43 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7624072A29B4ED17009E0B43 /* Preview Assets.xcassets */; };
+		76C2AD6F29DB80CD0020151A /* Grenze-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 76C2AD6D29DB80CC0020151A /* Grenze-Medium.ttf */; };
+		76C2AD7029DB80CD0020151A /* Grenze-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 76C2AD6E29DB80CD0020151A /* Grenze-Regular.ttf */; };
+		76C2AD7229DB80DA0020151A /* Hanuman-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 76C2AD7129DB80DA0020151A /* Hanuman-Light.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +22,10 @@
 		7624072529B4ED0F009E0B43 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7624072729B4ED17009E0B43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7624072A29B4ED17009E0B43 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		76C2AD6D29DB80CC0020151A /* Grenze-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Grenze-Medium.ttf"; sourceTree = "<group>"; };
+		76C2AD6E29DB80CD0020151A /* Grenze-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Grenze-Regular.ttf"; sourceTree = "<group>"; };
+		76C2AD7129DB80DA0020151A /* Hanuman-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Hanuman-Light.ttf"; sourceTree = "<group>"; };
+		76C2AD7329DB810D0020151A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +58,8 @@
 		7624072229B4ED0F009E0B43 /* CodedEye */ = {
 			isa = PBXGroup;
 			children = (
+				76C2AD7329DB810D0020151A /* Info.plist */,
+				76C2AD6C29DB80AD0020151A /* fonts */,
 				7624072329B4ED0F009E0B43 /* CodedEyeApp.swift */,
 				7624072529B4ED0F009E0B43 /* ContentView.swift */,
 				7624072729B4ED17009E0B43 /* Assets.xcassets */,
@@ -65,6 +74,16 @@
 				7624072A29B4ED17009E0B43 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		76C2AD6C29DB80AD0020151A /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				76C2AD7129DB80DA0020151A /* Hanuman-Light.ttf */,
+				76C2AD6D29DB80CC0020151A /* Grenze-Medium.ttf */,
+				76C2AD6E29DB80CD0020151A /* Grenze-Regular.ttf */,
+			);
+			path = fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -125,8 +144,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				76C2AD7029DB80CD0020151A /* Grenze-Regular.ttf in Resources */,
 				7624072B29B4ED17009E0B43 /* Preview Assets.xcassets in Resources */,
 				7624072829B4ED17009E0B43 /* Assets.xcassets in Resources */,
+				76C2AD6F29DB80CD0020151A /* Grenze-Medium.ttf in Resources */,
+				76C2AD7229DB80DA0020151A /* Hanuman-Light.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +292,8 @@
 				DEVELOPMENT_TEAM = TZ6PS855Z9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CodedEye/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -301,6 +325,8 @@
 				DEVELOPMENT_TEAM = TZ6PS855Z9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CodedEye/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
