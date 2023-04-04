@@ -7,6 +7,7 @@
 import Vision
 import SwiftUI
 import AVFoundation
+import CoreML
 
 struct ContentView: View {
     var body: some View {
@@ -26,6 +27,7 @@ struct CameraView : View {
     @State private var objectToggle = false
     @State private var personToggle = false
     @State private var textpopup = false
+    @State private var objectpopup = false
     @State var recognisedtext = "test"
     
     
@@ -43,6 +45,15 @@ struct CameraView : View {
                     .edgesIgnoringSafeArea(.all)
                     .onTapGesture {
                         textpopup.toggle()
+                        camera.retakePic()
+                    }
+            }
+            else if objectpopup{
+                Color.black
+                    .opacity(0.6)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture {
+                        objectpopup.toggle()
                         camera.retakePic()
                     }
             }
@@ -74,10 +85,6 @@ struct CameraView : View {
                                     .multilineTextAlignment(.center)
                                     .cornerRadius(12)
                                     .padding([.leading, .bottom, .trailing], 50.0)
-//                                    .background(Color.white
-//                                        .blur(radius: 200, opaque: false))
-//                                    .overlay(RoundedRectangle(cornerRadius: 1)
-//                                        .stroke(lineWidth: 0.1))
                                     .shadow(color: Color.black.opacity(0.5), radius:15, x: 0, y: 10)
                                     .font(.custom("Hanuman", size: 25))
                                     .frame(minHeight: proxy.size.height)
@@ -100,8 +107,46 @@ struct CameraView : View {
                             
                             Spacer()
                         }
+                else if objectpopup{
+                    
+                    Text("Object Result")
+                    .font(.custom("Grenze", size: 80))
+                        .fontWeight(.regular)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(Color(red: 0.88, green: 0.77, blue: 0.77,opacity: 1.0))
+                    
+                    Spacer()
+                    HStack {
+                        
+                        
+                        let objecttext = "Object: " + camera.objectdetect + "\n" + "Confidence:" + String(round(camera.confidence * 10) / 10) + "%"
+                        Text(objecttext)
+                                    .fontWeight(.light)
+                                    .foregroundColor(.black)
 
-               else if camera.isTaken, !textpopup{
+                                    .background(
+                                            Color.white
+                                                .blur(radius: 70, opaque: false)
+                                        )
+                                    .multilineTextAlignment(.center)
+                                    .cornerRadius(12)
+                                    .padding([.leading, .trailing], 20.0)
+                                    .shadow(color: Color.black.opacity(0.5), radius:15, x: 0, y: 10)
+                                    .font(.custom("Hanuman", size: 30))
+                              
+                        Spacer()
+                        Button(action: {objectpopup.toggle(); camera.retakePic()}, label: {Image(systemName: "arrowshape.turn.up.backward.circle.fill")
+                                .foregroundColor(.black)
+//                                .padding()
+                                .background(.white)
+                                .clipShape(Circle())
+                                .font(.system(size: 35))
+                        })
+                        .padding(.trailing,20)
+                    }
+                }
+
+               else if camera.isTaken, !textpopup, !objectpopup{
                     
                     HStack {
                         Spacer()
@@ -117,7 +162,7 @@ struct CameraView : View {
                         .padding(.trailing,10)
                     }
                 }
-                else if !camera.isTaken, !textpopup{
+                else if !camera.isTaken, !textpopup, !objectpopup{
                     
                     HStack{
                         Button(action: {textToggle.toggle(); camera.textwork.toggle()}, label: {Image(systemName: "character.cursor.ibeam")
@@ -130,7 +175,7 @@ struct CameraView : View {
                             
                         Spacer()
                         
-                        Button(action: {objectToggle.toggle()}, label: {Image(systemName: "baseball.diamond.bases")
+                        Button(action: {objectToggle.toggle(); camera.objectwork.toggle()}, label: {Image(systemName: "baseball.diamond.bases")
                                 .foregroundColor(objectToggle ? Color.green : Color.yellow)
                                 .padding(.all)
     //                            .background(Color.black)
@@ -149,17 +194,23 @@ struct CameraView : View {
                     }
                     
                 }
-                
-                Spacer()
-                
+                if !textpopup,!objectpopup {
+                    Spacer()
+                }
                 HStack{
                     
-                    if camera.isTaken, !textpopup {
+                    if camera.isTaken, !textpopup,!objectpopup {
                         
                         Button(action: {
                             if textToggle{
                                 textpopup.toggle()
-                            }else{
+                            
+                            }
+                            else if objectToggle{
+                                objectpopup.toggle()
+                                print("object time")
+                            }
+                            else{
                                 print("no text toggles also works")
                             }
                         }, label: {
@@ -173,7 +224,7 @@ struct CameraView : View {
                         })
                         .padding(.leading)
                     }
-                    else if !camera.isTaken, !textpopup{
+                    else if !camera.isTaken, !textpopup, !objectpopup{
                         Button(action: camera.takePic, label: {
                             
                             ZStack{
@@ -201,6 +252,7 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
     @Published var session = AVCaptureSession()
     @Published var alert = false
     @Published var textwork = false
+    @Published var objectwork = false
     
     // for the output
     @Published var output = AVCapturePhotoOutput()
@@ -213,11 +265,12 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
     
     @Published var recognisedtext = ""
     
-    @Published var useimage: UIImage?
+    @Published var objectdetect = ""
+    @Published var confidence = 0.0
     
-//    func testxyz(){
-//        print("testing works")
-//    }
+    
+    
+
     
     
     func Check(){
@@ -307,12 +360,12 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
 
         print("pic taken")
         
+        
+        guard let imageData = photo.fileDataRepresentation() else {return}
+        guard let image = UIImage(data: imageData) else {return}
+        guard let cgimage = image.cgImage else {return}
+        
         if self.textwork{
-            guard let imageData = photo.fileDataRepresentation() else {return}
-            guard let image = UIImage(data: imageData) else {return}
-            self.useimage = image
-            guard let cgimage = image.cgImage else {return}
-            
             let request = VNRecognizeTextRequest(completionHandler:  {(request, error) in
                 guard let observations = request.results as? [VNRecognizedTextObservation], error == nil else{
                     print("Text recognition error : \(error?.localizedDescription ?? "")")
@@ -326,15 +379,11 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
                     recognizetext += topCandidate.string + " "
                 }
                 
-                print(recognizetext)
+                //print(recognizetext)
                 
                 self.recognisedtext = recognizetext
                 
-                //            DispatchQueue.main.async {
-                //                if let cameraView = self.preview?.superlayer?.superlayer as? CameraView {
-                //                    cameraView.recognisedtext = recognizetext.trimmingCharacters(in: .whitespacesAndNewlines)
-                //                }
-                //            }
+                
             })
             
             request.recognitionLevel = .accurate
@@ -351,8 +400,27 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
             }
             
         }
+        else if objectwork {
+
+            guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else {
+                        fatalError("Failed to load ResNet50 model.")
+                    }
+            let handler = VNImageRequestHandler(cgImage: cgimage)
+            let request = VNCoreMLRequest(model: model, completionHandler: handlePrediction)
+            try? handler.perform([request])
+        }
 
   }
+    
+    func handlePrediction(request: VNRequest, error: Error?) {
+            guard let results = request.results as? [VNClassificationObservation],
+                  let topResult = results.first else {
+                return
+            }
+            print("Object detected: \(topResult.identifier), confidence: \(topResult.confidence)")
+        self.objectdetect = topResult.identifier
+        self.confidence = Double((topResult.confidence)*100)
+        }
         
 //
     
