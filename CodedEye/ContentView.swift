@@ -37,6 +37,7 @@ struct CameraView : View {
         ZStack {
             CameraPreview(camera: camera)
                 .ignoresSafeArea(.all, edges: .all)
+                
             
             if textpopup{
                 
@@ -50,11 +51,12 @@ struct CameraView : View {
             }
             else if objectpopup{
                 Color.black
-                    .opacity(0.6)
+                    .opacity(0.01)
                     .edgesIgnoringSafeArea(.all)
                     .onTapGesture {
                         objectpopup.toggle()
                         camera.retakePic()
+                           
                     }
             }
             
@@ -69,7 +71,8 @@ struct CameraView : View {
                             .font(.custom("Grenze", size: 80))
                                 .fontWeight(.regular)
                                 .multilineTextAlignment(.center)
-                                .foregroundColor(Color(red: 0.82, green: 0.77, blue: 0.77,opacity: 1.0))
+//                                .foregroundColor(Color(red: 0.82, green: 0.77, blue: 0.77,opacity: 1.0))
+                                .foregroundStyle(.secondary)
                         
                                 Spacer()
                             
@@ -80,8 +83,9 @@ struct CameraView : View {
                             ScrollView{
                                 Text(camera.recognisedtext)
                                     .fontWeight(.light)
-                                    .foregroundColor(.white)
-                                
+//                                    .foregroundColor(.white)
+                                    .foregroundStyle(.secondary)
+                                    .background(.ultraThinMaterial)
                                     .multilineTextAlignment(.center)
                                     .cornerRadius(12)
                                     .padding([.leading, .bottom, .trailing], 50.0)
@@ -113,7 +117,8 @@ struct CameraView : View {
                     .font(.custom("Grenze", size: 80))
                         .fontWeight(.regular)
                         .multilineTextAlignment(.center)
-                        .foregroundColor(Color(red: 0.88, green: 0.77, blue: 0.77,opacity: 1.0))
+//                        .foregroundColor(Color(red: 0.88, green: 0.77, blue: 0.77,opacity: 1.0))
+                        .foregroundStyle(.secondary)
                     
                     Spacer()
                     HStack {
@@ -122,12 +127,13 @@ struct CameraView : View {
                         let objecttext = "Object: " + camera.objectdetect + "\n" + "Confidence:" + String(round(camera.confidence * 10) / 10) + "%"
                         Text(objecttext)
                                     .fontWeight(.light)
-                                    .foregroundColor(.black)
-
-                                    .background(
-                                            Color.white
-                                                .blur(radius: 70, opaque: false)
-                                        )
+//                                    .foregroundColor(.black)
+                                    .foregroundStyle(.secondary)
+//                                    .background(
+//                                            Color.white
+//                                                .blur(radius: 70, opaque: false)
+//                                        )
+                                    .background(.ultraThinMaterial)
                                     .multilineTextAlignment(.center)
                                     .cornerRadius(12)
                                     .padding([.leading, .trailing], 20.0)
