@@ -171,14 +171,14 @@ struct CameraView : View {
                     
 //                    GeometryReader { geometry in
                         ZStack {
-                            ForEach(camera.faceObservations, id: \.self) { face in
-                                                Rectangle()
-                                                    .stroke(Color.red, lineWidth: 2)
-                                                    .frame(width: face.boundingBox.width * UIScreen.size.width,
-                                                           height: face.boundingBox.height * UIScreen.size.height)
-                                                    .position(x: face.boundingBox.midX * UIScreen.size.width,
-                                                              y: (1 - face.boundingBox.midY) * UIScreen.size.height)
-                                            }
+//                            ForEach(camera.faceObservations, id: \.self) { face in
+//                                                Rectangle()
+//                                                    .stroke(Color.red, lineWidth: 2)
+//                                                    .frame(width: face.boundingBox.width * UIScreen.size.width,
+//                                                           height: face.boundingBox.height * UIScreen.size.height)
+//                                                    .position(x: face.boundingBox.midX * UIScreen.size.width,
+//                                                              y: (1 - face.boundingBox.midY) * UIScreen.size.height)
+//                                            }
                         }
 //                    }
                     
