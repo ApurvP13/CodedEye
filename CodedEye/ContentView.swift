@@ -28,6 +28,7 @@ struct CameraView : View {
     @State private var personToggle = false
     @State private var textpopup = false
     @State private var objectpopup = false
+    @State private var personpopup = false
     @State var recognisedtext = "test"
     
     
@@ -49,12 +50,17 @@ struct CameraView : View {
                         camera.retakePic()
                     }
             }
-            else if objectpopup{
+            else if objectpopup || personpopup{
                 Color.black
                     .opacity(0.01)
                     .edgesIgnoringSafeArea(.all)
                     .onTapGesture {
-                        objectpopup.toggle()
+                        if objectpopup{
+                            objectpopup.toggle()
+                        }
+                        else if personpopup{
+                            personpopup.toggle()
+                        }
                         camera.retakePic()
                            
                     }
@@ -72,7 +78,7 @@ struct CameraView : View {
                                 .fontWeight(.regular)
                                 .multilineTextAlignment(.center)
 //                                .foregroundColor(Color(red: 0.82, green: 0.77, blue: 0.77,opacity: 1.0))
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.primary)
                         
                                 Spacer()
                             
@@ -151,8 +157,34 @@ struct CameraView : View {
                         .padding(.trailing,20)
                     }
                 }
+                
+                else if personpopup{
+                    
+                    Text("Pers Result")
+                    .font(.custom("Grenze", size: 80))
+                        .fontWeight(.regular)
+                        .multilineTextAlignment(.center)
+//                        .foregroundColor(Color(red: 0.88, green: 0.77, blue: 0.77,opacity: 1.0))
+                        .foregroundStyle(.primary)
+                    
+                    Spacer()
+                    
+//                    GeometryReader { geometry in
+                        ZStack {
+                            ForEach(camera.faceObservations, id: \.self) { face in
+                                                Rectangle()
+                                                    .stroke(Color.red, lineWidth: 2)
+                                                    .frame(width: face.boundingBox.width * UIScreen.size.width,
+                                                           height: face.boundingBox.height * UIScreen.size.height)
+                                                    .position(x: face.boundingBox.midX * UIScreen.size.width,
+                                                              y: (1 - face.boundingBox.midY) * UIScreen.size.height)
+                                            }
+                        }
+//                    }
+                    
+                }
 
-               else if camera.isTaken, !textpopup, !objectpopup{
+               else if camera.isTaken, !textpopup, !objectpopup, !personpopup{
                     
                     HStack {
                         Spacer()
@@ -191,7 +223,7 @@ struct CameraView : View {
                 
                         Spacer()
                         
-                        Button(action: {personToggle.toggle()}, label: {Image(systemName: "person.fill")
+                        Button(action: {personToggle.toggle(); camera.personwork.toggle()}, label: {Image(systemName: "person.fill")
                                 .foregroundColor(personToggle ? Color.green : Color.yellow)
                                 .padding(.all)
     //                            .background(Color.black)
@@ -200,12 +232,12 @@ struct CameraView : View {
                     }
                     
                 }
-                if !textpopup,!objectpopup {
+                if !textpopup,!objectpopup, !personpopup {
                     Spacer()
                 }
                 HStack{
                     
-                    if camera.isTaken, !textpopup,!objectpopup {
+                    if camera.isTaken, !textpopup,!objectpopup, !personpopup {
                         
                         Button(action: {
                             if textToggle{
@@ -215,6 +247,9 @@ struct CameraView : View {
                             else if objectToggle{
                                 objectpopup.toggle()
                                 print("object time")
+                            }
+                            else if personToggle{
+                                personpopup.toggle()
                             }
                             else{
                                 print("no text toggles also works")
@@ -230,7 +265,7 @@ struct CameraView : View {
                         })
                         .padding(.leading)
                     }
-                    else if !camera.isTaken, !textpopup, !objectpopup{
+                    else if !camera.isTaken, !textpopup, !objectpopup, !personpopup{
                         Button(action: camera.takePic, label: {
                             
                             ZStack{
@@ -259,6 +294,7 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
     @Published var alert = false
     @Published var textwork = false
     @Published var objectwork = false
+    @Published var personwork = false
     
     // for the output
     @Published var output = AVCapturePhotoOutput()
@@ -273,6 +309,7 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
     
     @Published var objectdetect = ""
     @Published var confidence = 0.0
+    @Published var faceObservations: [VNFaceObservation] = []
     
     
     
@@ -415,8 +452,32 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
             let request = VNCoreMLRequest(model: model, completionHandler: handlePrediction)
             try? handler.perform([request])
         }
+        else if personwork{
+            let request = VNDetectFaceRectanglesRequest(completionHandler: handleFaces)
+                let handler = VNImageRequestHandler(cgImage: cgimage, options: [:])
+
+                do {
+                    try handler.perform([request])
+                } catch {
+                    print("Failed to perform detection: \(error)")
+                }
+        }
 
   }
+    
+    func handleFaces(request: VNRequest, error: Error?) {
+        guard let observations = request.results as? [VNFaceObservation] else { return }
+        
+        DispatchQueue.main.async {
+            self.faceObservations = observations
+        }
+
+
+        for face in observations {
+            print("Face found at \(face.boundingBox)")
+            
+        }
+    }
     
     func handlePrediction(request: VNRequest, error: Error?) {
             guard let results = request.results as? [VNClassificationObservation],
