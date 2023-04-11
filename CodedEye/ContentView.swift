@@ -171,14 +171,19 @@ struct CameraView : View {
                     
                     GeometryReader { geometry in
                         ZStack {
-                            ForEach(camera.faceObservations, id: \.self) { face in
-                                Rectangle()
-                                    .stroke(Color.red, lineWidth: 2)
-                                    .frame(width: face.boundingBox.width * UIScreen.main.bounds.size.width,
-                                           height: face.boundingBox.height * UIScreen.main.bounds.size.height)
-                                    .position(x: face.boundingBox.midX * UIScreen.main.bounds.size.width,
-                                              y: (1 - face.boundingBox.midY) * UIScreen.main.bounds.size.height)
-                            }
+                            ForEach(camera.faceObservations, id: \.self) { observation in
+                                                let faceBounds = observation.boundingBox
+                                                
+                                                // Convert the bounding box coordinates from normalized space to pixel space
+                                                let transform = CGAffineTransform(scaleX: geometry.size.width, y: geometry.size.height)
+                                                let scaledBounds = faceBounds.applying(transform)
+                                                
+                                                // Draw a green rectangle
+                                                Rectangle()
+                                                    .stroke(Color.green, lineWidth: 2)
+                                                    .frame(width: scaledBounds.width, height: scaledBounds.height)
+                                                    .position(x: scaledBounds.midX, y: geometry.size.height - scaledBounds.midY)
+                                            }
 
 
                         }
@@ -312,6 +317,7 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
     @Published var objectdetect = ""
     @Published var confidence = 0.0
     @Published var faceObservations: [VNFaceObservation] = []
+    @Published var userImage: UIImage?
     
     
     
@@ -410,6 +416,8 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
         guard let image = UIImage(data: imageData) else {return}
         guard let cgimage = image.cgImage else {return}
         
+        self.userImage = image
+        
         if self.textwork{
             let request = VNRecognizeTextRequest(completionHandler:  {(request, error) in
                 guard let observations = request.results as? [VNRecognizedTextObservation], error == nil else{
@@ -454,6 +462,7 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
             let request = VNCoreMLRequest(model: model, completionHandler: handlePrediction)
             try? handler.perform([request])
         }
+        
         else if personwork{
             let request = VNDetectFaceRectanglesRequest(completionHandler: handleFaces)
                 let handler = VNImageRequestHandler(cgImage: cgimage, options: [:])
