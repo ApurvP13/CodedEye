@@ -160,8 +160,8 @@ struct CameraView : View {
                 
                 else if personpopup{
                     
-                    Text("Pers Result")
-                    .font(.custom("Grenze", size: 80))
+                    Text("Person Result")
+                    .font(.custom("Grenze", size: 75))
                         .fontWeight(.regular)
                         .multilineTextAlignment(.center)
 //                        .foregroundColor(Color(red: 0.88, green: 0.77, blue: 0.77,opacity: 1.0))
@@ -169,25 +169,35 @@ struct CameraView : View {
                     
                     Spacer()
                     
-                    GeometryReader { geometry in
-                        ZStack {
-                            ForEach(camera.faceObservations, id: \.self) { observation in
-                                                let faceBounds = observation.boundingBox
-                                                
-                                                // Convert the bounding box coordinates from normalized space to pixel space
-                                                let transform = CGAffineTransform(scaleX: geometry.size.width, y: geometry.size.height)
-                                                let scaledBounds = faceBounds.applying(transform)
-                                                
-                                                // Draw a green rectangle
-                                                Rectangle()
-                                                    .stroke(Color.green, lineWidth: 2)
-                                                    .frame(width: scaledBounds.width, height: scaledBounds.height)
-                                                    .position(x: scaledBounds.midX, y: geometry.size.height - scaledBounds.midY)
-                                            }
-
-
-                        }
+                    
+                    HStack{
+                        Text("There are " + String(camera.faceObservations.count) + " faces")
+                                    .fontWeight(.light)
+//                                    .foregroundColor(.black)
+                                    .foregroundStyle(.secondary)
+//                                    .background(
+//                                            Color.white
+//                                                .blur(radius: 70, opaque: false)
+//                                        )
+                                    .background(.ultraThinMaterial)
+                                    .multilineTextAlignment(.center)
+                                    .cornerRadius(12)
+                                    .padding([.leading, .trailing], 20.0)
+                                    .shadow(color: Color.black.opacity(0.5), radius:15, x: 0, y: 10)
+                                    .font(.custom("Hanuman", size: 30))
+                              
+                        Spacer()
+                        Button(action: {personpopup.toggle(); camera.retakePic()}, label: {Image(systemName: "arrowshape.turn.up.backward.circle.fill")
+                                .foregroundColor(.black)
+//                                .padding()
+                                .background(.white)
+                                .clipShape(Circle())
+                                .font(.system(size: 35))
+                        })
+                        .padding(.trailing,20)
                     }
+                    
+                   
                     
                 }
 
@@ -483,11 +493,11 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
             self.faceObservations = observations
         }
 
-
-        for face in observations {
-            print("Face found at \(face.boundingBox)")
-            
-        }
+//        print(observations.count)
+//        for face in observations {
+//            print("Face found at \(face.boundingBox)")
+//
+//        }
     }
     
     func handlePrediction(request: VNRequest, error: Error?) {
