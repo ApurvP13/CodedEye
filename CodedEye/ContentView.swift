@@ -171,7 +171,7 @@ struct CameraView : View {
                     
                     
                     HStack{
-                        Text("There are " + String(camera.faceObservations.count) + " faces")
+                        Text("There are " + String(camera.faceObservations.count) + " person")
                                     .fontWeight(.light)
 //                                    .foregroundColor(.black)
                                     .foregroundStyle(.secondary)
