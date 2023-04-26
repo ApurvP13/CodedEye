@@ -4,52 +4,66 @@
 //
 //  Created by Apurv Pandey on 05/03/2023.
 //
+
+// This code imports the necessary frameworks for the project: Vision, SwiftUI, AVFoundation, and CoreML
 import Vision
 import SwiftUI
 import AVFoundation
 import CoreML
 
+// This is the ContentView struct that defines the body of the app, which consists of a CameraView
 struct ContentView: View {
     var body: some View {
         CameraView()
     }
 }
 
+// This is the ContentView_Previews struct that previews the ContentView
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
 }
 
+// Define a CameraView struct
 struct CameraView : View {
+    // Define camera state object
     @StateObject var camera = CameraModel()
+    // Define text toggle state variable
     @State private var textToggle = false
+    // Define object toggle state variable
     @State private var objectToggle = false
+    // Define object toggle state variable
     @State private var personToggle = false
+    // Define object popup state variable
     @State private var textpopup = false
+    // Define object popup state variable
     @State private var objectpopup = false
+    // Define object popup state variable
     @State private var personpopup = false
+    // Define recognised text state variable
     @State var recognisedtext = "test"
     
     
-    
+    // Define the body of the view
     var body: some View {
-        
+        // Set up a ZStack to overlay content
         ZStack {
+            // Add the camera preview to the view
             CameraPreview(camera: camera)
                 .ignoresSafeArea(.all, edges: .all)
                 
-            
+            // If textpopup is true, show the text result
             if textpopup{
                 
-                Color.black
-                    .opacity(0.9)
-                    .edgesIgnoringSafeArea(.all)
-                    .onTapGesture {
-                        textpopup.toggle()
-                        camera.retakePic()
+                Color.black // Sets the color of the overlay
+                    .opacity(0.9)// Sets the opacity of the overlay
+                    .edgesIgnoringSafeArea(.all)// Ignores safe area to cover the entire screen
+                    .onTapGesture {// Adds a tap gesture to the overlay
+                        textpopup.toggle()// Toggles the value of textpopup to hide the overlay
+                        camera.retakePic()// Calls a function to retake a picture using the camera
                     }
-            }
+            }// If objectpopup or personpopup is true, show the result with opacity 0.01
             else if objectpopup || personpopup{
                 Color.black
                     .opacity(0.01)
@@ -65,19 +79,18 @@ struct CameraView : View {
                            
                     }
             }
-            
+            // Add a VStack for the text result
             VStack{
                 
-//                will be used to make the modes
+
                 
-                
+                // Text result will be displayed if textpopup is true
                 if textpopup{
                         
                             Text("Text Result")
                             .font(.custom("Grenze", size: 80))
                                 .fontWeight(.regular)
                                 .multilineTextAlignment(.center)
-//                                .foregroundColor(Color(red: 0.82, green: 0.77, blue: 0.77,opacity: 1.0))
                                 .foregroundStyle(.primary)
                         
                                 Spacer()
@@ -105,9 +118,9 @@ struct CameraView : View {
                             
                     HStack {
                         Spacer()
+                        // Button to retake picture and toggle textpopup or objectpopup or personpopup
                         Button(action: {textpopup.toggle(); camera.retakePic()}, label: {Image(systemName: "arrowshape.turn.up.backward.circle.fill")
                                 .foregroundColor(.black)
-//                                .padding()
                                 .background(.white)
                                 .clipShape(Circle())
                                 .font(.system(size: 35))
@@ -117,28 +130,22 @@ struct CameraView : View {
                             
                             Spacer()
                         }
+                // When objectpopup is true, display the object detection result
                 else if objectpopup{
                     
                     Text("Object Result")
                     .font(.custom("Grenze", size: 80))
                         .fontWeight(.regular)
                         .multilineTextAlignment(.center)
-//                        .foregroundColor(Color(red: 0.88, green: 0.77, blue: 0.77,opacity: 1.0))
                         .foregroundStyle(.secondary)
                     
                     Spacer()
                     HStack {
-                        
-                        
+                        // Display the object detection result
                         let objecttext = "Object: " + camera.objectdetect + "\n" + "Confidence:" + String(round(camera.confidence * 10) / 10) + "%"
                         Text(objecttext)
                                     .fontWeight(.light)
-//                                    .foregroundColor(.black)
                                     .foregroundStyle(.secondary)
-//                                    .background(
-//                                            Color.white
-//                                                .blur(radius: 70, opaque: false)
-//                                        )
                                     .background(.ultraThinMaterial)
                                     .multilineTextAlignment(.center)
                                     .cornerRadius(12)
@@ -147,9 +154,9 @@ struct CameraView : View {
                                     .font(.custom("Hanuman", size: 30))
                               
                         Spacer()
+                        // Button to retake picture and toggle objectpopup
                         Button(action: {objectpopup.toggle(); camera.retakePic()}, label: {Image(systemName: "arrowshape.turn.up.backward.circle.fill")
                                 .foregroundColor(.black)
-//                                .padding()
                                 .background(.white)
                                 .clipShape(Circle())
                                 .font(.system(size: 35))
@@ -157,28 +164,23 @@ struct CameraView : View {
                         .padding(.trailing,20)
                     }
                 }
-                
+                // When personpopup is true, display the face detection result
                 else if personpopup{
                     
                     Text("Person Result")
                     .font(.custom("Grenze", size: 75))
                         .fontWeight(.regular)
                         .multilineTextAlignment(.center)
-//                        .foregroundColor(Color(red: 0.88, green: 0.77, blue: 0.77,opacity: 1.0))
                         .foregroundStyle(.primary)
                     
                     Spacer()
                     
                     
                     HStack{
+                        // Display the number of people in the image
                         Text("There are " + String(camera.faceObservations.count) + " person")
                                     .fontWeight(.light)
-//                                    .foregroundColor(.black)
                                     .foregroundStyle(.secondary)
-//                                    .background(
-//                                            Color.white
-//                                                .blur(radius: 70, opaque: false)
-//                                        )
                                     .background(.ultraThinMaterial)
                                     .multilineTextAlignment(.center)
                                     .cornerRadius(12)
@@ -429,14 +431,15 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
         self.userImage = image
         
         if self.textwork{
+            // creating a request lamda funtion that takes in a handler and outputs the recognized text
             let request = VNRecognizeTextRequest(completionHandler:  {(request, error) in
                 guard let observations = request.results as? [VNRecognizedTextObservation], error == nil else{
                     print("Text recognition error : \(error?.localizedDescription ?? "")")
                     return
                 }
-                
+                //creating a variable to store the recognized text from the image
                 var recognizetext = ""
-                
+                //running a for loop to get the best guess of the recognition model
                 for observation in observations {
                     guard let topCandidate = observation.topCandidates(1).first else {continue}
                     recognizetext += topCandidate.string + " "
@@ -448,14 +451,14 @@ class CameraModel : NSObject,ObservableObject,AVCapturePhotoCaptureDelegate {
                 
                 
             })
-            
+            // setting up the mode's configuration
             request.recognitionLevel = .accurate
             request.usesLanguageCorrection = true
             
             let requests = [request]
-            
+            // creating a request handler
             let imageRequestHandler = VNImageRequestHandler(cgImage: cgimage, orientation: .up, options: [:])
-            
+            // trying to run a request on the handler and catching any error
             do {
                 try imageRequestHandler.perform(requests)
             } catch let error as NSError {
